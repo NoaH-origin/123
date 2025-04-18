@@ -35,7 +35,6 @@ jobs:
       # 6. 编译APK
       - name: Build APK
         run: ./gradlew assembleDebug
-
       # 7. 上传APK
       - uses: actions/upload-artifact@v3
         with:
