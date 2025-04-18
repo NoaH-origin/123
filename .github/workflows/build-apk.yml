@@ -1,42 +1,29 @@
-name: Build Panda Reader APK
+name: Build APK
 on: [push]
+permissions:
+  actions: write
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # 1. 检出仓库（含你上传的ZIP）
       - uses: actions/checkout@v4
 
-      # 2. 安装解压工具
-      - name: Install unzip
-        run: sudo apt-get install -y unzip
-
-      # 3. 解压你的压缩包（关键修改点）
       - name: Unzip Project
         run: |
           unzip legado-master.zip -d ./unpacked
-          mv ./unpacked/* ./   # 将内容移动到根目录
-          rm legado-master.zip # 删除原始ZIP
-          ls -R  # 打印目录结构（调试用）
+          mv ./unpacked/* ./
+          rm legado-master.zip
 
-      # 4. 设置Java环境
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'temurin'
 
-      # 5. 修复权限问题
-      - name: Fix Permissions
-        run: |
-          chmod +x gradlew
-          [ -f gradlew ] || echo "错误：gradlew 文件不存在！"
+      - run: chmod +x gradlew && ./gradlew assembleDebug
 
-      # 6. 编译APK
-      - name: Build APK
-        run: ./gradlew assembleDebug
-      # 7. 上传APK
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4  # 关键修改点
         with:
           name: PandaReader-APK
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error  # 严格检查APK是否存在
